@@ -29,7 +29,7 @@ export class articlePage {
 
   async addComment(comment:string){
     await this.page.getByPlaceholder('Write a comment...').fill(comment)
-    await this.page.getByRole('button',{name:' Post Comment '}).click()
+    await this.page.getByRole('button', { name: ' Post Comment ' }).click()
   }
 
   async expectComment(comment:string){

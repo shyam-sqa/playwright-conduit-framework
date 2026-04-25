@@ -43,10 +43,9 @@ test('Article lifecycle', async ({page}) => {
   expect(updatedbody.article.description).toEqual(updatedAbout)
   expect(updatedbody.article.body).toEqual(updatedContent)
 
-
   await article.addComment(comment)
   await article.expectComment(comment)
-  
+
   await article.deleteArticle()
   await expect(page).toHaveURL('https://conduit.bondaracademy.com/')
 
