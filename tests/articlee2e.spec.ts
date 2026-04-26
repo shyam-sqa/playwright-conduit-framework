@@ -1,10 +1,8 @@
-import { test, expect } from '../libs/fixtures/test.fixtures';
+import { test, expect } from '../libs/fixtures/test.fixture';
 import { articlePage } from '../libs/pages/article.page';
 import { articleAPI } from '../libs/api/article.api';
-
   
-test('Article lifecycle', async ({page}) => {
-
+test('Article lifecycle', async ({page, apiContext}) => {
   const article = new articlePage(page);
   const title = `Playwright Article ${Date.now()}`;
   const about = "Test automation basics";
@@ -13,8 +11,7 @@ test('Article lifecycle', async ({page}) => {
   const updatedAbout = about + "Updated";
   const updatedContent = content + "Updated";
   const comment = "Nice one";
-  const api = new articleAPI()
-
+  const api = new articleAPI(apiContext);
 
   await article.open();
 

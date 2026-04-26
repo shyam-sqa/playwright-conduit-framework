@@ -5,7 +5,7 @@ export class articlePage {
   }
 
   async open() {
-    await this.page.goto('https://conduit.bondaracademy.com/');
+    await this.page.goto('/');
   }
 
   async createArticle(title: string, about:string, content:string) {

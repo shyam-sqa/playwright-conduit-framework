@@ -4,7 +4,7 @@ export class home{
     constructor(private page:Page){ 
     }
     async open(){
-       await this.page.goto("https://conduit.bondaracademy.com/")
+       await this.page.goto('/')
     }
 
     async get_tags_names(){

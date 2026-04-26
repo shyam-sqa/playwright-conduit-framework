@@ -1,4 +1,4 @@
-import {test, } from "../libs/fixtures/test.fixtures";
+import {test, } from "../libs/fixtures/test.fixture";
 import { home } from "../libs/pages/home.page";
 
 test("filter by tags",async({page})=>{
