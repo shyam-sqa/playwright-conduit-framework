@@ -25,6 +25,7 @@ export class articlePage {
     await this.page.getByPlaceholder('Write your article (in markdown)').fill(updatedContent)
 
     await this.page.getByRole('button', { name: 'Publish Article' }).click();
+    await this.page.waitForURL('**/article/**')
   }
 
   async addComment(comment:string){
@@ -42,8 +43,6 @@ export class articlePage {
 
 
   async expectArticleVisible(title: string, content:string) {
-    await this.page.waitForSelector('.article-page h1',{state:'visible'})
-    await this.page.waitForSelector('.article-content',{state:'visible'})
     await expect(this.page.locator('.article-page h1')).toBeVisible();
     await expect(this.page.locator('.article-content')).toContainText(content)
   }
