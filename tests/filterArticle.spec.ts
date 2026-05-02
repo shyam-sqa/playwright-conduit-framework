@@ -1,5 +1,5 @@
-import {test, } from "../libs/fixtures/test.fixture";
-import { home } from "../libs/pages/home.page";
+import {test, } from "../fixtures/test.fixture";
+import { home } from "../pages/home.page";
 
 test("filter by tags",async({page})=>{
     const home_page = new home(page);

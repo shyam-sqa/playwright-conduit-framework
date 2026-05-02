@@ -4,7 +4,6 @@ export async function createUserAPI(apiContext: APIRequestContext){
 
     const uniqueEmail:string = `${Math.random().toString(36).substring(2, 8)}@test.com`
     const password:string = '12345678'
-    const username:string = ''
 
     const response = await apiContext.post(
         '/api/users/',

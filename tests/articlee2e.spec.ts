@@ -1,6 +1,6 @@
-import { test, expect } from '../libs/fixtures/test.fixture';
-import { articlePage } from '../libs/pages/article.page';
-import { articleAPI } from '../libs/api/article.api';
+import { test, expect } from '../fixtures/test.fixture';
+import { articlePage } from '../pages/article.page';
+import { articleAPI } from '../api/article.api';
   
 test('Article lifecycle', async ({page, apiContext}) => {
   const article = new articlePage(page);
