@@ -35,46 +35,50 @@ export class home{
 
     }
 
-    async get_article_by_name(title:string){
-        let link:Locator
+    async get_article_by_name(title:string):Promise<Locator> {
+
         await this.page.waitForSelector('.article-preview a.preview-link h1',{state:'visible'})
-        const articles = await this.page.locator('.article-preview a.preview-link h1' ).allInnerTexts()
-            for(let i=0; i< articles.length;i++){
-            if(articles[i].trim().toLowerCase() === title.trim().toLowerCase()){
-                link = this.page.locator('.article-preview').nth(i)
-                return link
+        const articles = this.page.locator('.article-preview');
+        const count = await articles.count();
+        for(let i=0; i< count;i++){
+            const articleTitle = await articles.nth(i).locator('a.preview-link h1').innerText();
+            if(articleTitle.trim().toLowerCase() === title.trim().toLowerCase()){
+                return articles.nth(i);
             } 
-        }        
+        }
+        throw new Error(`Article not found: "${title}"`);
+        
     }
 
-    async get_favorites_count(title:string){
+    async get_favorites_count(title:string): Promise<number>{
         await this.page.waitForSelector('.article-preview a.preview-link h1',{state:'visible'})
-        const link = await this.get_article_by_name(title)
-        if(!link){
-            throw new Error('Article not found')
-        }
-        const countText = await link.locator('.article-meta .btn-sm').innerText()
-        const count = parseInt(countText.trim(), 10)
-        return count
+        const article = await this.get_article_by_name(title)
+        const countText = await article.locator('.article-meta .btn-sm').innerText();
+        return parseInt(countText.replace(/\D/g, ''), 10);
     }
 
-    async add_to_favorites(title:string){
-        const link = await this.get_article_by_name(title)
-        if(!link){
-            throw new Error('Article not found')
-        }
-        const button = link.locator('.article-meta .btn-sm')
+    async toggle_favorite(title:string,expectIncrease:boolean){
+        const article = await this.get_article_by_name(title)
+        
+        const button = article.locator('.article-meta .btn-sm')
         const beforeText = await button.innerText()
         const beforeCount = parseInt(beforeText.replace(/\D/g, ''), 10)
+
         await button.click()
+
         await expect.poll(async () => {
             const text = await button.innerText()
             return parseInt(text.replace(/\D/g, ''), 10)
-        }).toBeGreaterThan(beforeCount)
+        })[expectIncrease ? 'toBeGreaterThan' : 'toBeLessThan'](beforeCount)
 
-        const afterText = await button.innerText()
-        const afterCount = parseInt(afterText.replace(/\D/g, ''), 10)
     }
-   
-    
+
+    async add_to_favorites(title:string):Promise<void>{
+        await this.toggle_favorite(title, true);
+    }
+
+    async remove_from_favorites(title:string):Promise<void>{
+        await this.toggle_favorite(title, false);
+    }
+
 }
