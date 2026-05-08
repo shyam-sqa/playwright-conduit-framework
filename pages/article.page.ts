@@ -16,6 +16,7 @@ export class articlePage {
     await this.page.getByPlaceholder('Write your article (in markdown)').fill(content);
 
     await this.page.getByRole('button', { name: 'Publish Article' }).click();
+    await this.page.waitForURL('**/article/**')
   }
 
   async editArticle(updatedTitle:string, updatedAbout:string, updatedContent:string){
