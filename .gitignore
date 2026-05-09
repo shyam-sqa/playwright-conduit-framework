@@ -149,3 +149,4 @@ node_modules/
 /playwright/.auth/
 >>>>>>> c7b7813 (initial framework API auth and POM)
 tests/k6/summary*.json
+/.vscode/
