@@ -15,8 +15,8 @@ export class articleAPI{
         return await this.apiContext.get(`/api/articles/${slug}/comments`)
     }
 
-    async createArticle(title:string,description:string,body:string,taglist?:string[]){
-        const response = this.apiContext.post('/api/articles/',{
+    async createArticle(title:string,description:string,body:string,taglist?:string[]):Promise<string>{
+        const response = await this.apiContext.post('/api/articles/',{
             data:{
                 article:{
                     title:title,
@@ -26,8 +26,16 @@ export class articleAPI{
                 }
             }
         })
-        expect((await response).status()).toBe(200)
+        expect(response.status()).toBe(201)
+        const responseBody = await response.json()
+        const slug = responseBody.article.slug
+        console.log(slug)
+        return slug
     }
 
+    async deleteArticle(slug:string){
+        const response = this.apiContext.delete(`api/articles/${slug}`)
+        expect((await response).status()).toBe(204)
+    }
 
 }
