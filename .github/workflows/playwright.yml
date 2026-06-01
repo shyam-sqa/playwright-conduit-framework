@@ -21,6 +21,24 @@ jobs:
       run: npx playwright install --with-deps
     - name: Run Playwright tests
       run: npx playwright test
+
+    - name: Notify n8n Webhook on Failure
+      if: failure() 
+      env:
+        N8N_WEBHOOK_URL: ${{ secrets.N8N_WEBHOOK_URL }}
+      run: |
+        ERROR_SUMMARY="Playwright test run failed in pipeline execution."
+        
+        curl -X POST "$N8N_WEBHOOK_URL" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "buildNumber": "${{ github.run_number }}",
+            "repoName": "${{ github.repository }}",
+            "runId": "${{ github.run_id }}",
+            "branch": "${{ github.ref_name }}",
+            "errorMessage": "'"$ERROR_SUMMARY"'"
+          }'
+
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:

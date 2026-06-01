@@ -1,11 +1,9 @@
 import {test, expect} from '../fixtures/test.fixture'
 import { home } from '../pages/home.page'
 import { articleAPI } from '../api/article.api'
-import { articlePage } from '../pages/article.page'
 
 test("Add and remove article from favorites",async({page, apiContext})=>{
     const api = new articleAPI(apiContext)
-    const article = new articlePage(page)
     const title = `Favorites Test ${Date.now()}`
     const slug = await api.createArticle(title,'about','content')
 

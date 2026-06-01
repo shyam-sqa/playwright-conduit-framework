@@ -27,6 +27,7 @@ export class articlePage {
 
     await this.page.getByRole('button', { name: 'Publish Article' }).click();
     await this.page.waitForURL('**/article/**')
+    await this.page.waitForLoadState('networkidle');
     await expect(this.page.locator('.article-content')).toContainText(updatedContent)
   }
 
