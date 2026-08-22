@@ -41,16 +41,17 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    /*
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      grep: /@cross-browser/,
     },
 
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
-    },*/
+      grep: /@cross-browser/,
+    },
 
     /* Test against mobile viewports. */
     // {

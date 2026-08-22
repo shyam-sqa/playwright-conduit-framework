@@ -12,12 +12,32 @@ type TrackedArticleApi = ArticleApi & {
 
 type Fixtures = {
   apiContext: APIRequestContext;
+  anonymousApiContext: APIRequestContext;
+  anonymousPage: Page;
   articleApi: TrackedArticleApi;
   user: TestUser;
   page: Page;
 };
 
 export const test = base.extend<Fixtures>({
+  anonymousApiContext: async ({}, use) => {
+    const context = await request.newContext({ baseURL: environment.apiBaseUrl });
+    try {
+      await use(context);
+    } finally {
+      await context.dispose();
+    }
+  },
+
+  anonymousPage: async ({ browser }, use) => {
+    const page = await browser.newPage();
+    try {
+      await use(page);
+    } finally {
+      await page.close();
+    }
+  },
+
   user: async ({}, use) => {
     const context = await request.newContext({ baseURL: environment.apiBaseUrl });
     try {

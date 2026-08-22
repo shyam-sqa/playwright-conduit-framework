@@ -18,6 +18,12 @@ export class ArticleApi {
     return ((await response.json()) as ArticleResponse).article;
   }
 
+  async createArticleRequest(input: ArticleInput): Promise<APIResponse> {
+    return this.apiContext.post('/api/articles/', {
+      data: { article: { ...input, tagList: input.tagList ?? [] } },
+    });
+  }
+
   async deleteArticle(slug: string, allowNotFound = false): Promise<void> {
     const response = await this.apiContext.delete(`/api/articles/${slug}`);
     if (allowNotFound && response.status() === 404) return;

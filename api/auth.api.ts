@@ -1,5 +1,17 @@
-import { APIRequestContext } from '@playwright/test';
-import { TestUser, UserResponse } from '../models/user';
+import { APIRequestContext, APIResponse } from '@playwright/test';
+import { LoginCredentials, RegistrationData, TestUser, UserResponse } from '../models/user';
+
+export class AuthApi {
+  constructor(private readonly apiContext: APIRequestContext) {}
+
+  async register(user: RegistrationData): Promise<APIResponse> {
+    return this.apiContext.post('/api/users/', { data: { user } });
+  }
+
+  async login(credentials: LoginCredentials): Promise<APIResponse> {
+    return this.apiContext.post('/api/users/login', { data: { user: credentials } });
+  }
+}
 
 export async function createUserApi(apiContext: APIRequestContext): Promise<TestUser> {
   const uniqueId = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
@@ -7,9 +19,7 @@ export async function createUserApi(apiContext: APIRequestContext): Promise<Test
   const email = `${username}@test.com`;
   const password = 'Test12345678!';
 
-  const response = await apiContext.post('/api/users/', {
-    data: { user: { email, password, username } },
-  });
+  const response = await new AuthApi(apiContext).register({ email, password, username });
 
   if (response.status() !== 201) {
     throw new Error(

@@ -5,7 +5,8 @@ export type ArticleInput = {
   tagList?: string[];
 };
 
-export type Article = ArticleInput & {
+export type Article = Omit<ArticleInput, 'tagList'> & {
+  tagList: string[];
   slug: string;
   createdAt: string;
   updatedAt: string;
