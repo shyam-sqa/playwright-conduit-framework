@@ -1,34 +1,26 @@
 import { APIRequestContext } from '@playwright/test';
+import { TestUser, UserResponse } from '../models/user';
 
-export async function createUserAPI(apiContext: APIRequestContext){
+export async function createUserApi(apiContext: APIRequestContext): Promise<TestUser> {
+  const uniqueId = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  const username = `qa${uniqueId}`;
+  const email = `${username}@test.com`;
+  const password = 'Test12345678!';
 
-    const uniqueEmail:string = `${Math.random().toString(36).substring(2, 8)}@test.com`
-    const password:string = '12345678'
+  const response = await apiContext.post('/api/users/', {
+    data: { user: { email, password, username } },
+  });
 
-    const response = await apiContext.post(
-        '/api/users/',
-        {
-           data: {
-                user: {
-                    email: uniqueEmail,
-                    password: password,
-                    username : uniqueEmail.split('@')[0]
-                }
-           }
-        }
+  if (response.status() !== 201) {
+    throw new Error(
+      `User creation failed (${response.status()} ${response.statusText()}): ${await response.text()}`,
     );
-    const body = await response.json();
+  }
 
-    if (!body.user) {
-    console.log("API Error:", body);
-    throw new Error("User creation/login failed");
-    }
-    
-    return{
-        email : body.user.email,
-        password,
-        username: body.user.username,
-        token: body.user.token
+  const { user } = (await response.json()) as UserResponse;
+  if (!user?.token) {
+    throw new Error('User creation response did not contain an authentication token');
+  }
 
-    }
+  return { ...user, password };
 }

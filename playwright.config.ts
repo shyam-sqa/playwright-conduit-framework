@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { environment } from './config/environment';
 
 /**
  * Read environment variables from file.
@@ -26,21 +27,19 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-     baseURL: 'https://conduit.bondaracademy.com/',
+    baseURL: environment.webBaseUrl,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
 
   /* Configure projects for major browsers */
   projects: [
-    
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'],
-      
-       },
-      
+      use: { ...devices['Desktop Chrome'] },
     },
     /*
     {

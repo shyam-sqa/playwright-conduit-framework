@@ -1,25 +1,23 @@
-import {test, expect} from '../fixtures/test.fixture'
-import { home } from '../pages/home.page'
-import { articleAPI } from '../api/article.api'
+import { test, expect } from '../fixtures/test.fixture';
+import { HomePage } from '../pages/home.page';
 
-test("Add and remove article from favorites",async({page, apiContext})=>{
-    const api = new articleAPI(apiContext)
-    const title = `Favorites Test ${Date.now()}`
-    const slug = await api.createArticle(title,'about','content')
+test('authenticated user can add and remove an article from favorites', async ({
+  page,
+  articleApi,
+}) => {
+  const article = await articleApi.createTrackedArticle({
+    title: `Favorites Test ${Date.now()}`,
+    description: 'Favorite behavior',
+    body: 'Article created through the API for UI verification',
+  });
+  const homePage = new HomePage(page);
 
-    const home_page = new home(page)
-    await home_page.open()
+  await homePage.open();
+  const initialCount = await homePage.getFavoritesCount(article.title);
 
-    const countBefore = await home_page.get_favorites_count(title)
-    await home_page.add_to_favorites(title)
-    expect(await home_page.get_favorites_count(title)).toBe(countBefore + 1)
+  await homePage.addToFavorites(article.title);
+  expect(await homePage.getFavoritesCount(article.title)).toBe(initialCount + 1);
 
-
-    await home_page.remove_from_favorites(title)
-    expect(await home_page.get_favorites_count(title)).toBe(countBefore)
-
-    
-    await api.deleteArticle(slug)
-
-})
-
+  await homePage.removeFromFavorites(article.title);
+  expect(await homePage.getFavoritesCount(article.title)).toBe(initialCount);
+});

@@ -1,50 +1,44 @@
 import { test, expect } from '../fixtures/test.fixture';
-import { articlePage } from '../pages/article.page';
-import { articleAPI } from '../api/article.api';
-  
-test('Article lifecycle', async ({page, apiContext}) => {
-  const article = new articlePage(page);
-  const title = `Playwright Article ${Date.now()}`;
-  const about = "Test automation basics";
-  const content = "This is a detailed article...";
-  const updatedTitle = title + "Updated";
-  const updatedAbout = about + "Updated";
-  const updatedContent = content + "Updated";
-  const comment = "Nice one";
-  const api = new articleAPI(apiContext);
+import { ArticleInput } from '../models/article';
+import { ArticlePage } from '../pages/article.page';
 
-  await article.open();
+test('authenticated user can complete the article lifecycle', async ({ page, articleApi }) => {
+  const articlePage = new ArticlePage(page);
+  const article: ArticleInput = {
+    title: `Playwright Article ${Date.now()}`,
+    description: 'Test automation basics',
+    body: 'This is a detailed article...',
+  };
+  const updatedArticle: ArticleInput = {
+    title: `${article.title} Updated`,
+    description: `${article.description} Updated`,
+    body: `${article.body} Updated`,
+  };
 
-  await article.expectLoggedIn();
+  await test.step('create an article through the UI', async () => {
+    await articlePage.open();
+    await articlePage.expectLoggedIn();
+    await articlePage.createArticle(article);
+    await articlePage.expectArticleVisible(article);
+    articleApi.trackForCleanup(articlePage.getSlug());
+  });
 
-  await article.createArticle(title,about,content);
-  await article.expectArticleVisible(title,content);
+  await test.step('verify the created article through the API', async () => {
+    const createdArticle = await articleApi.getArticle(articlePage.getSlug());
+    expect(createdArticle).toMatchObject(article);
+  });
 
-    const slug= article.getSlug()
-    const response = await api.getArticle(slug)
-    expect(response.ok()).toBeTruthy();
-    const body = await response.json()
-    expect(body.article.title).toEqual(title)
-    expect(body.article.description).toEqual(about)
-    expect(body.article.body).toEqual(content)
-  
+  await test.step('edit the article and verify it through the UI and API', async () => {
+    await articlePage.editArticle(updatedArticle);
+    await articlePage.expectArticleVisible(updatedArticle);
+    articleApi.trackForCleanup(articlePage.getSlug());
+    const savedArticle = await articleApi.getArticle(articlePage.getSlug());
+    expect(savedArticle).toMatchObject(updatedArticle);
+  });
 
-
-  await article.editArticle(updatedTitle,updatedAbout,updatedContent)
-  await article.expectArticleVisible(updatedTitle,updatedContent);
-  const upadtedslug = article.getSlug()
-  const updatedResponse = await api.getArticle(upadtedslug)
-  const updatedbody = await updatedResponse.json()
-  expect((updatedResponse.ok())).toBeTruthy()
-  expect(updatedbody.article.title).toEqual(updatedTitle)
-  expect(updatedbody.article.description).toEqual(updatedAbout)
-  expect(updatedbody.article.body).toEqual(updatedContent)
-
-  await article.addComment(comment)
-  await article.expectComment(comment)
-
-  await article.deleteArticle()
-  await expect(page).toHaveURL('https://conduit.bondaracademy.com/')
-
+  await test.step('add a comment and delete the article', async () => {
+    await articlePage.addComment('Useful automation article');
+    await articlePage.expectComment('Useful automation article');
+    await articlePage.deleteArticle();
+  });
 });
-

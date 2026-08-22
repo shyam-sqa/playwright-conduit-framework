@@ -1,41 +1,40 @@
-import { APIRequestContext, expect } from '@playwright/test';
+import { APIRequestContext, APIResponse } from '@playwright/test';
+import { Article, ArticleInput, ArticleResponse } from '../models/article';
 
-export class articleAPI{
-    private apiContext: APIRequestContext;
-    
-    constructor(apiContext: APIRequestContext){
-        this.apiContext = apiContext;
-    }
+export class ArticleApi {
+  constructor(private readonly apiContext: APIRequestContext) {}
 
-    async getArticle(slug:string){
-        return await this.apiContext.get(`/api/articles/${slug}`)
-    }
+  async getArticle(slug: string): Promise<Article> {
+    const response = await this.apiContext.get(`/api/articles/${slug}`);
+    await this.assertStatus(response, 200, `get article "${slug}"`);
+    return ((await response.json()) as ArticleResponse).article;
+  }
 
-    async getComments(slug:string){
-        return await this.apiContext.get(`/api/articles/${slug}/comments`)
-    }
+  async createArticle(input: ArticleInput): Promise<Article> {
+    const response = await this.apiContext.post('/api/articles/', {
+      data: { article: { ...input, tagList: input.tagList ?? [] } },
+    });
+    await this.assertStatus(response, 201, `create article "${input.title}"`);
+    return ((await response.json()) as ArticleResponse).article;
+  }
 
-    async createArticle(title:string,description:string,body:string,taglist?:string[]):Promise<string>{
-        const response = await this.apiContext.post('/api/articles/',{
-            data:{
-                article:{
-                    title:title,
-                    description: description,
-                    body:body,
-                    taglist: taglist
-                }
-            }
-        })
-        expect(response.status()).toBe(201)
-        const responseBody = await response.json()
-        const slug = responseBody.article.slug
-        console.log(slug)
-        return slug
-    }
+  async deleteArticle(slug: string, allowNotFound = false): Promise<void> {
+    const response = await this.apiContext.delete(`/api/articles/${slug}`);
+    if (allowNotFound && response.status() === 404) return;
+    await this.assertStatus(response, 204, `delete article "${slug}"`);
+  }
 
-    async deleteArticle(slug:string){
-        const response = this.apiContext.delete(`api/articles/${slug}`)
-        expect((await response).status()).toBe(204)
-    }
+  private async assertStatus(
+    response: APIResponse,
+    expectedStatus: number,
+    operation: string,
+  ): Promise<void> {
+    if (response.status() === expectedStatus) return;
 
+    const responseBody = await response.text();
+    throw new Error(
+      `Failed to ${operation}: expected status ${expectedStatus}, ` +
+        `received ${response.status()} ${response.statusText()}. Body: ${responseBody}`,
+    );
+  }
 }

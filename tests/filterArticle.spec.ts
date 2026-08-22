@@ -1,12 +1,15 @@
-import {test, } from "../fixtures/test.fixture";
-import { home } from "../pages/home.page";
+import { test } from '../fixtures/test.fixture';
+import { HomePage } from '../pages/home.page';
 
-test("filter by tags",async({page})=>{
-    const home_page = new home(page);
-    await home_page.open()
-    const tags:string[] = await home_page.get_tags_names()
-    for(let tag of tags){
-        await home_page.filter_by_tag(tag)
-        await home_page.expect_tag(tag) 
-    }
-})
+test('user can filter the global feed by popular tags', async ({ page }) => {
+  const homePage = new HomePage(page);
+  await homePage.open();
+
+  const tags = await homePage.getPopularTags();
+  for (const tag of tags) {
+    await test.step(`filter articles by "${tag}"`, async () => {
+      await homePage.filterByTag(tag);
+      await homePage.expectEveryArticleTagged(tag);
+    });
+  }
+});
